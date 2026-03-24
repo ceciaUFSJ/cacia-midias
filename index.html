@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
 <meta charset="UTF-8">
-<title>Colegiado – CECIA</title>
+<title>Mídias e eventos – Engenharia da Computação e IA (CECIA)</title>
 
 
 
@@ -323,6 +323,12 @@ body {
   margin: 10px 0 0 20px;
 }
 
+  .drive-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 /* Aviso */
 .aviso {
   background: #fff3cd;
@@ -569,8 +575,10 @@ async function renderFolder(folderId, parentElement) {
       img.onclick = () =>
         window.open(item.webViewLink, "_blank");
 
-      parentElement.appendChild(img);
+parentElement.classList.add("drive-gallery");
+parentElement.appendChild(img);
 
+      
     }
 
     /* ===== VÍDEO ===== */
