@@ -621,15 +621,15 @@ else if (item.mimeType.startsWith("video/")) {
   video.onclick = () =>
     window.open(item.webViewLink, "_blank");
 
-  let gallery = parentElement.querySelector(".drive-gallery");
+let gallery = parentElement.querySelector(":scope > .drive-gallery");
 
-  if (!gallery) {
-    gallery = document.createElement("div");
-    gallery.className = "drive-gallery";
-    parentElement.appendChild(gallery);
-  }
+if (!gallery) {
+  gallery = document.createElement("div");
+  gallery.className = "drive-gallery";
+  parentElement.appendChild(gallery);
+}
 
-  gallery.appendChild(video);
+gallery.appendChild(img);
 
 }
 
