@@ -532,25 +532,28 @@ async function renderFolder(folderId, parentElement) {
 
       const content = document.createElement("div");
       content.className = "folder-content";
-header.addEventListener("click", async () => {
 
-  const aberto = box.classList.contains("open");
+      
+      
+header.addEventListener("click", () => {
 
-  if (aberto) {
-    box.classList.remove("open");
-    header.querySelector("span").textContent = "▼";
-    return;
-  }
+  const aberto = box.classList.toggle("open");
 
-  box.classList.add("open");
-  header.querySelector("span").textContent = "▲";
+  header.querySelector("span").textContent =
+    aberto ? "▲" : "▼";
 
-  if (!content.dataset.loaded) {
-    await renderFolder(item.id, content);
+  if (aberto && !content.dataset.loaded) {
+
     content.dataset.loaded = "true";
+
+    renderFolder(item.id, content);
+
   }
 
 });
+
+
+      
 
       box.appendChild(header);
       box.appendChild(content);
