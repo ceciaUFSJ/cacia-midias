@@ -532,20 +532,25 @@ async function renderFolder(folderId, parentElement) {
 
       const content = document.createElement("div");
       content.className = "folder-content";
+header.addEventListener("click", async () => {
 
-      header.addEventListener("click", async () => {
+  const aberto = box.classList.contains("open");
 
-        const aberto = box.classList.toggle("open");
+  if (aberto) {
+    box.classList.remove("open");
+    header.querySelector("span").textContent = "▼";
+    return;
+  }
 
-        header.querySelector("span").textContent =
-          aberto ? "▲" : "▼";
+  box.classList.add("open");
+  header.querySelector("span").textContent = "▲";
 
-        /* carrega subpastas só quando abrir */
-        if (aberto && content.innerHTML === "") {
-          await renderFolder(item.id, content);
-        }
+  if (!content.dataset.loaded) {
+    await renderFolder(item.id, content);
+    content.dataset.loaded = "true";
+  }
 
-      });
+});
 
       box.appendChild(header);
       box.appendChild(content);
