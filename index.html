@@ -579,34 +579,32 @@ header.addEventListener("click", () => {
     }
 
     /* ===== IMAGEM ===== */
-    else if (item.mimeType.startsWith("image/")) {
+else if (item.mimeType.startsWith("image/")) {
 
-      const img = document.createElement("img");
+  const img = document.createElement("img");
 
-      img.src = `https://drive.google.com/thumbnail?id=${item.id}&sz=w320`;
-      img.style.margin = "6px";
-      img.style.borderRadius = "6px";
-      img.style.cursor = "pointer";
-      img.style.maxWidth = "180px";
+  img.src = `https://drive.google.com/thumbnail?id=${item.id}&sz=w320`;
+  img.style.margin = "6px";
+  img.style.borderRadius = "6px";
+  img.style.cursor = "pointer";
+  img.style.maxWidth = "180px";
 
-      img.onclick = () =>
-        window.open(item.webViewLink, "_blank");
+  img.onclick = () =>
+    window.open(item.webViewLink, "_blank");
 
-      
-      let gallery = parentElement.querySelector(".drive-gallery");
+  let gallery = parentElement.querySelector(":scope > .drive-gallery");
 
-if (!gallery) {
-  gallery = document.createElement("div");
-  gallery.className = "drive-gallery";
-  parentElement.appendChild(gallery);
+  if (!gallery) {
+    gallery = document.createElement("div");
+    gallery.className = "drive-gallery";
+    parentElement.appendChild(gallery);
+  }
+
+  gallery.appendChild(img);
+
 }
 
-gallery.appendChild(img);
-
-      
-    }
-
-    /* ===== VÍDEO ===== */
+/* ===== VÍDEO ===== */
 else if (item.mimeType.startsWith("video/")) {
 
   const video = document.createElement("img");
@@ -621,16 +619,15 @@ else if (item.mimeType.startsWith("video/")) {
   video.onclick = () =>
     window.open(item.webViewLink, "_blank");
 
-let gallery = parentElement.querySelector(":scope > .drive-gallery");
+  let gallery = parentElement.querySelector(":scope > .drive-gallery");
 
-if (!gallery) {
-  gallery = document.createElement("div");
-  gallery.className = "drive-gallery";
-  parentElement.appendChild(gallery);
-}
+  if (!gallery) {
+    gallery = document.createElement("div");
+    gallery.className = "drive-gallery";
+    parentElement.appendChild(gallery);
+  }
 
-gallery.appendChild(img);
-
+  gallery.appendChild(video);
 }
 
 /* ===== IGNORA OUTROS ARQUIVOS ===== */
@@ -638,7 +635,9 @@ else {
   continue;
 }
 
-    /* ===== OUTROS ARQUIVOS ===== */
+
+    
+
   
 
   }
