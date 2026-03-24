@@ -451,9 +451,6 @@ body {
 
 <div class="container my-4">
 
-<p class="fw-bold" style="margin-bottom:1cm;">
-Mídias e arquivos sobre eventos do curso de Engenharia da Computação e Inteligência Artificial
-</p>
 
 <p style="margin-bottom:0.8cm;">
 Nesta página estão disponíveis materiais relacionados a eventos acadêmicos, palestras, oficinas,
@@ -487,70 +484,153 @@ Carregando documentos...
 <!-- ================= REQUERIMENTO (GOOGLE DRIVE) ================= -->
 <script>
 const API_KEY = "AIzaSyACMK-L2y2-ZyJkwSkuu992Zug1dPFZgQM";
-const ROOT_FOLDER_REQ = "158mGyMW3XfeqimrW5lEjYW26dfrspDai";
+const ROOT_FOLDER = "158mGyMW3XfeqimrW5lEjYW26dfrspDai";
 
+/* ================= GOOGLE DRIVE API ================= */
 async function driveApi(q) {
   const url =
-    `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,mimeType)&supportsAllDrives=true&includeItemsFromAllDrives=true&key=${API_KEY}`;
+    `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id,name,mimeType,thumbnailLink,webViewLink)&supportsAllDrives=true&includeItemsFromAllDrives=true&key=${API_KEY}`;
   const r = await fetch(url);
   return (await r.json()).files || [];
 }
 
-async function carregarRequerimento() {
-  const container = document.getElementById("requerimento");
-  container.innerHTML = "";
+/* ================= RENDERIZA PASTA ================= */
+async function renderFolder(folderId, parentElement) {
 
-  let pastas = await driveApi(
-    `'${ROOT_FOLDER_REQ}' in parents and mimeType='application/vnd.google-apps.folder'`
+  const itens = await driveApi(`'${folderId}' in parents`);
+
+  itens.sort((a,b)=>
+    a.name.localeCompare(b.name,"pt-BR",{sensitivity:"base"})
   );
 
-  pastas.sort((a,b) =>
-    a.name.localeCompare(b.name, "pt-BR", { sensitivity: "base" })
-  );
+  for (const item of itens) {
 
-  pastas.forEach(async (pasta) => {
-    const box = document.createElement("div");
-    box.className = "folder";
+    /* ===== SUBPASTA ===== */
+    if (item.mimeType === "application/vnd.google-apps.folder") {
 
-    const h = document.createElement("div");
-    h.className = "folder-header";
-    h.innerHTML = `📁 ${pasta.name} <span>▼</span>`;
+      const box = document.createElement("div");
+      box.className = "folder";
 
-const c = document.createElement("div");
-c.className = "folder-content";
+      const header = document.createElement("div");
+      header.className = "folder-header";
+      header.innerHTML = `📁 ${item.name} <span>▼</span>`;
 
-/* ABRIR / FECHAR AO CLICAR */
-h.addEventListener("click", () => {
-  box.classList.toggle("open");
+      const content = document.createElement("div");
+      content.className = "folder-content";
 
-  const seta = h.querySelector("span");
-  seta.textContent = box.classList.contains("open") ? "▲" : "▼";
-});
+      header.addEventListener("click", async () => {
 
-    
+        const aberto = box.classList.toggle("open");
 
-    const arquivos = await driveApi(
-      `'${pasta.id}' in parents and mimeType!='application/vnd.google-apps.folder'`
-    );
+        header.querySelector("span").textContent =
+          aberto ? "▲" : "▼";
 
-    arquivos
-      .sort((a,b)=>a.name.localeCompare(b.name,"pt-BR",{sensitivity:"base"}))
-      .forEach(a => {
-        c.innerHTML += `
-          <div class="file">
-            📄 <a target="_blank" href="https://drive.google.com/file/d/${a.id}/view">${a.name}</a>
-          </div>`;
+        /* carrega subpastas só quando abrir */
+        if (aberto && content.innerHTML === "") {
+          await renderFolder(item.id, content);
+        }
+
       });
 
-    box.appendChild(h);
-    box.appendChild(c);
-    container.appendChild(box);
-  });
+      box.appendChild(header);
+      box.appendChild(content);
+      parentElement.appendChild(box);
+
+    }
+
+    /* ===== PDF ===== */
+    else if (item.mimeType === "application/pdf") {
+
+      const file = document.createElement("div");
+      file.className = "file";
+
+      file.innerHTML = `
+        📄 <a target="_blank"
+        href="https://drive.google.com/file/d/${item.id}/view">
+        ${item.name}
+        </a>
+      `;
+
+      parentElement.appendChild(file);
+
+    }
+
+    /* ===== IMAGEM ===== */
+    else if (item.mimeType.startsWith("image/")) {
+
+      const img = document.createElement("img");
+
+      img.src = `https://drive.google.com/thumbnail?id=${item.id}&sz=w320`;
+      img.style.margin = "6px";
+      img.style.borderRadius = "6px";
+      img.style.cursor = "pointer";
+      img.style.maxWidth = "180px";
+
+      img.onclick = () =>
+        window.open(item.webViewLink, "_blank");
+
+      parentElement.appendChild(img);
+
+    }
+
+    /* ===== VÍDEO ===== */
+    else if (item.mimeType.startsWith("video/")) {
+
+      const video = document.createElement("img");
+
+      video.src = item.thumbnailLink ||
+        `https://drive.google.com/thumbnail?id=${item.id}&sz=w320`;
+
+      video.style.margin = "6px";
+      video.style.borderRadius = "6px";
+      video.style.cursor = "pointer";
+      video.style.maxWidth = "180px";
+
+      video.onclick = () =>
+        window.open(item.webViewLink, "_blank");
+
+      parentElement.appendChild(video);
+
+    }
+
+    /* ===== OUTROS ARQUIVOS ===== */
+    else {
+
+      const file = document.createElement("div");
+
+      file.innerHTML = `
+        📎 <a target="_blank"
+        href="https://drive.google.com/file/d/${item.id}/view">
+        ${item.name}
+        </a>
+      `;
+
+      parentElement.appendChild(file);
+
+    }
+
+  }
+
 }
 
-carregarRequerimento();
+/* ================= INICIAR ================= */
+async function carregarDocumentos() {
+
+  const container = document.getElementById("requerimento");
+
+  container.innerHTML = "";
+
+  await renderFolder(ROOT_FOLDER, container);
+
+}
+
+carregarDocumentos();
 </script>
 
+
+
+
+  
 <!-- ================= DATA DE ATUALIZAÇÃO ================= -->
 <script>
 const DOC_DATA_ATUALIZACAO =
@@ -569,6 +649,10 @@ async function carregarDataAtualizacao() {
   }
 }
 
+
+
+
+  
 carregarDataAtualizacao();
 </script>
 
